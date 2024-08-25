@@ -18,10 +18,10 @@ produces:
   - application/json
 
 securityDefinitions:
-  ApiKeyAuth:
-    type: apiKey
-    in: header
-    name: loko-publishable-key 
+  # ApiKeyAuth:
+  #   type: apiKey
+  #   in: header
+  #   name: loko-publishable-key 
   publishableKeyAuth:
     type: apiKey
     in: "header"
@@ -161,6 +161,32 @@ paths:
           $ref: '#/responses/400'
         401:
           $ref: '#/responses/401'
+  /payments/{id}/cancel:
+    post:
+      summary: 'Cancel payment'
+      tags:
+        - payments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      operationId: cancelPayment
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+      responses:
+        200:
+          description: 'successful cancel payment'
+          schema:
+            $ref: '#/definitions/Payment'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
   /payments/{id}/confirm:
     post:
       summary: 'Confirm payment'
@@ -186,32 +212,6 @@ paths:
       responses:
         200:
           description: 'successful confirm payment'
-          schema:
-            $ref: '#/definitions/Payment'
-        400:
-          $ref: '#/responses/401'
-        401:
-          $ref: '#/responses/401'
-  /payments/{id}/cancel:
-    post:
-      summary: 'Cancel payment'
-      tags:
-        - payments
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      security:
-        - publishableKeyAuth: []
-      operationId: cancelPayment
-      parameters:
-        - name: id
-          required: true
-          in: path
-          type: string
-      responses:
-        200:
-          description: 'successful cancel payment'
           schema:
             $ref: '#/definitions/Payment'
         400:
@@ -244,6 +244,7 @@ paths:
           $ref: '#/responses/401'
         401:
           $ref: '#/responses/401'
+
   /payouts:
     get:
       summary: 'Get payouts'
@@ -424,6 +425,7 @@ paths:
           $ref: '#/responses/401'
         401:
           $ref: '#/responses/401'
+
   /networkfees:
     get:
       summary: 'Get network fees'
@@ -2366,8 +2368,12 @@ definitions:
     properties:
       currency:
         type: string
+        description: Three-letter [ISO currency
+            code](https://www.iso.org/iso-4217-currency-codes.html) for FIAT, three or four letter code for cryptocurrencies. Cryptocurrency code list
+        example: 'BTC'
       network:
         type: string
+        description: The cryptocurrency network
       customer:
         $ref: '#/definitions/PaymentCustomer'
 
