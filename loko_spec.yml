@@ -2276,6 +2276,10 @@ definitions:
         type: string
       destination_network_description:
         type: string
+      destination_transaction_fee:
+        type: string
+      destination_transaction_fee_currency:
+        type: string
       destination_network_fee:
         type: string
       destination_network_fee_currency:
@@ -2317,6 +2321,13 @@ definitions:
       failed_reason:
         type: string
 
+  TransferWithNetworkFee:
+    type: object
+    properties:
+      base_amount:
+        type: string
+      base_currency:
+        type: string
 
   CreatePayoutRequest:
     type: object
@@ -2329,12 +2340,16 @@ definitions:
         type: string
       customer:
         $ref: '#/definitions/PaymentCustomer'
+      transfer_with_network_fee:
+        $ref: '#/definitions/TransferWithNetworkFee'
 
   ConfirmPayoutRequest:
     type: object
     properties:
-        destination_network_detail:
-            $ref: '#/definitions/DestinationNetworkDetail'
+      destination_network_details:
+        type: array
+        items:
+          $ref: '#/definitions/DestinationNetworkDetail'
 
   GetPaymentsResponse:
     type: object
