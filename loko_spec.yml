@@ -2332,11 +2332,11 @@ definitions:
     properties:
       enabled:
         type: boolean
-      base_amount:
+      amount:
         type: string
-      base_network:
+      network:
         type: string
-      base_currency:
+      currency:
         type: string
 
   CreatePayoutRequest:
