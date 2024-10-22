@@ -2276,13 +2276,15 @@ definitions:
         type: string
       destination_network_description:
         type: string
-      destination_transaction_fee:
+      destination_transaction_fee: # 0.005 | 100 (1U)
+        type: string 
+      destination_transaction_fee_type: # percentage | fixed
+        type: string 
+      destination_transaction_fee_currency: # USDC
         type: string
-      destination_transaction_fee_currency:
+      destination_network_fee: # gas fee
         type: string
-      destination_network_fee:
-        type: string
-      destination_network_fee_currency:
+      destination_network_fee_currency: 
         type: string
       destination_network_fee_monetary:
         type: string
