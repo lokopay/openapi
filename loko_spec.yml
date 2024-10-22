@@ -2276,8 +2276,10 @@ definitions:
         type: string
       destination_network_description:
         type: string
-      destination_transaction_fee: # 0.005 | 100 (1U)
+      destination_transaction_fee_fixed: # 100 (1U)
         type: string 
+      destination_transaction_fee_percentage: # 0.005 
+        type: string
       destination_transaction_fee_type: # percentage | fixed
         type: string 
       destination_transaction_fee_currency: # USDC
