@@ -310,7 +310,7 @@ paths:
         401:
           $ref: '#/responses/401'
     post:
-      summary: 'Create a payment'
+      summary: 'Create a payout'
       tags:
         - payouts
       consumes:
