@@ -2286,6 +2286,8 @@ definitions:
         type: string
       destination_network_fee_monetary:
         type: string
+      transfer_with_native_token:
+        $ref: '#/definitions/TransferWithNativeToken'
 
   Payout:
     type: object
