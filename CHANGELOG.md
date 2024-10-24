@@ -25,6 +25,15 @@
     }
     ```
 
+    example of transfer native token in etherum network:
+    ```
+    "transfer_with_native_token": {
+        "amount": "500",
+        "network": "etheruem",
+        "currency": "ERCUSDC"
+    }
+    ```
+
     2. Added following fields in the destination_network_details
     ```
     "destination_transaction_fee_fixed": "<string>",
@@ -69,4 +78,5 @@
     "destination_transaction_fee_percentage": "<string>",
     "destination_transaction_fee_type": "<string>",
     "destination_transaction_fee_currency": "<string>",
-  ``` 
+  ```
+  
