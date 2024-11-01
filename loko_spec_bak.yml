@@ -1,0 +1,2440 @@
+swagger: '2.0'
+info:
+  version: '2024-08-22'
+  title: LokoPay API
+  contact:
+    email: dev@lokopay.io
+    name: LokoPay Dev Team
+    url: 'https://lokopay.io'
+
+host: api.lokopay.io
+basePath: /v1
+schemes:
+  - https
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  # ApiKeyAuth:
+  #   type: apiKey
+  #   in: header
+  #   name: loko-publishable-key 
+  publishableKeyAuth:
+    type: apiKey
+    in: "header"
+    name: "loko-publishable-key"
+tags:
+  - name: payments
+    description: APIs for payments 
+  - name: payouts
+    description: APIs for payouts
+  - name: networkfees
+    description: APIs for network fee
+  - name: customer_wallets
+    description: APIs for customer wallets
+
+paths:
+
+  /payments:
+    get:
+      summary: 'Get payments'
+      tags:
+        - payments
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      parameters:
+        - in: query
+          name: starting_after
+          type: string
+          required: false
+        - in: query
+          name: ending_before
+          type: string
+          required: false
+        - in: query
+          name: created_from
+          type: integer
+          required: false
+        - in: query
+          name: created_to
+          type: integer
+          required: false
+        - in: query
+          name: completed_from
+          type: integer
+          required: false
+        - in: query
+          name: completed_to
+          type: integer
+          required: false
+        - in: query
+          name: status
+          type: string
+          required: false
+        - in: query
+          name: limit
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          required: false
+        - name: loko-object-secret
+          required: false
+          in: header
+          type: string
+      operationId: getPayments
+      responses:
+        200:
+          description: 'return payment objects'
+          schema:
+            $ref: '#/definitions/GetPaymentsResponse'
+          headers:
+            Access-Control-Expose-Headers:
+              type: string
+            Content-Range:
+              type: string
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+    post:
+      summary: 'Create a payment'
+      tags:
+        - payments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      operationId: createPayment
+      parameters:
+        - name: createPaymentRequest
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/CreatePaymentRequest'
+      responses:
+        200:
+          description: 'successful create payment'
+          schema:
+            $ref: '#/definitions/Payment'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+  /payments/{id}:
+    get:
+      summary: 'Get payment detail'
+      tags:
+        - payments
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      operationId: getPayment
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+        - name: loko-object-secret
+          required: false
+          in: header
+          type: string
+      responses:
+        200:
+          description: 'return payment objects'
+          schema:
+            $ref: '#/definitions/Payment'
+          headers:
+            Access-Control-Expose-Headers:
+              type: string
+            Content-Range:
+              type: string
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+  /payments/{id}/cancel:
+    post:
+      summary: 'Cancel payment'
+      tags:
+        - payments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      operationId: cancelPayment
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+      responses:
+        200:
+          description: 'successful cancel payment'
+          schema:
+            $ref: '#/definitions/Payment'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+  /payments/{id}/confirm:
+    post:
+      summary: 'Confirm payment'
+      tags:
+        - payments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: []
+      operationId: confirmPayment
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+        - name: confirmPaymentRequest
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/ConfirmPaymentRequest'
+      responses:
+        200:
+          description: 'successful confirm payment'
+          schema:
+            $ref: '#/definitions/Payment'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+  /payments/{id}/refund:
+    post:
+      summary: 'Refund payment'
+      tags:
+        - payments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: RefundPayment
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+      responses:
+        200:
+          description: 'successful refund payment'
+          schema:
+            $ref: '#/definitions/Payment'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+
+  /payouts:
+    get:
+      summary: 'Get payouts'
+      tags:
+        - payouts
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      parameters:
+        - in: query
+          name: starting_after
+          type: string
+          required: false
+        - in: query
+          name: ending_before
+          type: string
+          required: false
+        - in: query
+          name: created_from
+          type: integer
+          required: false
+        - in: query
+          name: created_to
+          type: integer
+          required: false
+        - in: query
+          name: limit
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          required: false
+        - name: loko-object-secret
+          required: false
+          in: header
+          type: string
+        - in: query
+          name: completed_from
+          type: integer
+          required: false
+        - in: query
+          name: completed_to
+          type: integer
+          required: false
+        - in: query
+          name: status
+          type: string
+          required: false
+      operationId: getPayouts
+      responses:
+        200:
+          description: 'return payout objects'
+          schema:
+            $ref: '#/definitions/GetPayoutsResponse'
+          headers:
+            Access-Control-Expose-Headers:
+              type: string
+            Content-Range:
+              type: string
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+    post:
+      summary: 'Create a payout'
+      tags:
+        - payouts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: createPayout
+      parameters:
+        - name: createPoutRequest
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/CreatePayoutRequest'
+      responses:
+        200:
+          description: 'successful create payout'
+          schema:
+            $ref: '#/definitions/Payout'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+  /payouts/{id}:
+    get:
+      summary: 'Get payout detail'
+      tags:
+        - payouts
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: getPayout
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+        - name: loko-object-secret
+          required: false
+          in: header
+          type: string
+      responses:
+        200:
+          description: 'return payout objects'
+          schema:
+            $ref: '#/definitions/Payout'
+          headers:
+            Access-Control-Expose-Headers:
+              type: string
+            Content-Range:
+              type: string
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+  /payouts/{id}/cancel:
+    post:
+      summary: 'Cancel payout'
+      tags:
+        - payouts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: cancelPayout
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+      responses:
+        200:
+          description: 'successful cancel payout'
+          schema:
+            $ref: '#/definitions/Payout'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+  /payouts/{id}/confirm:
+    post:
+      summary: 'Confirm payout'
+      tags:
+        - payouts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: confirmPayout
+      parameters:
+        - name: id
+          required: true
+          in: path
+          type: string
+        - name: confirmPayoutRequest
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/ConfirmPayoutRequest'
+      responses:
+        200:
+          description: 'successful confirm payout'
+          schema:
+            $ref: '#/definitions/Payout'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+
+  /networkfees:
+    get:
+      summary: 'Get network fees'
+      tags:
+        - networkfees
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: getNetworkFees
+      responses:
+        200:
+          description: 'return network fees'
+          schema:
+            type: object
+            properties:
+              object:
+                type: string
+              destination_network_details:
+                type: array
+                items:
+                  $ref: '#/definitions/DestinationNetworkDetail'
+          headers:
+            Access-Control-Expose-Headers:
+              type: string
+            Content-Range:
+              type: string
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+
+  /customer_wallets:
+    post:
+      summary: 'Create a customer wallet'
+      tags:
+        - customer_wallets
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - publishableKeyAuth: [ ]
+      operationId: createCustomerWallet
+      parameters:
+        - name: createCustomerWalletRequest
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/CreateCustomerWalletRequest'
+      responses:
+        200:
+          description: 'successful create customer wallet'
+          schema:
+            $ref: '#/definitions/CustomerWallet'
+        400:
+          $ref: '#/responses/401'
+        401:
+          $ref: '#/responses/401'
+
+responses:
+  400:
+    description: 'returns error if request is invalid'
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  401:
+    description: 'returns error of invalid auth token is passed'
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  403:
+    description: 'returns error if missing scope'
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  404:
+    description: 'returns error if invalid user id is passed'
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  500:
+    description: 'returns error'
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+
+definitions:
+  User:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      active:
+        type: boolean
+      id:
+        type: string
+      token:
+        type: string
+      accounts:
+        type:  object
+        properties:
+          id:
+            type: string
+          country:
+            type: string
+      locations:
+        type: array
+        items:
+          $ref: '#/definitions/Location'
+      userType:
+        type: string
+      country:
+        type: string
+      commissionRateSetting:
+        type: string
+    required:
+    - name
+    - email
+    - active
+    - phoneNumber
+  UserType:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      account_id:
+        type: string
+      idFront:
+        type: string
+      idBack:
+        type: string
+      idFrontUrl:
+        type: string
+      idBackUrl:
+        type: string
+      nationality:
+        type: string
+      idType:
+        type: string
+      idNumber:
+        type: string
+    required:
+      - id
+      - firstName
+      - lastName
+  StoreOwner:
+    type: object
+    properties:
+      id:
+        type: string
+      active:
+        type: boolean
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+    required:
+    - firstName
+    - email
+    - phone
+  Account:
+    type: object
+    properties:
+      id:
+        type: string
+      user_id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      countrySymbol:
+        type: string
+      currencySymbol:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      address:
+         $ref: '#/definitions/Address'
+      credit:
+        type: number
+      creditLimit:
+        type: number
+      images:
+        type: array
+        items:
+          $ref: '#/definitions/Image'
+      files:
+        type: array
+        items:
+          $ref: '#/definitions/File'
+      active:
+        type: boolean
+      accountNumber:
+        type: string
+      settleType:
+        type: string
+      isMFA:
+        type: boolean
+      notifyUpperLimit:
+        type: number
+      loginEmail:
+        type: string
+      createdAt:
+        type: string
+      locations:
+        type: array
+        items:
+          $ref: '#/definitions/Location'
+    required:
+    - firstName
+    - lastName
+    - phoneNumber
+    - email
+    - active
+    - isMFA
+  LatLng:
+    type: object
+    properties:
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+    required:
+    - latitude
+    - longitude
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+      country:
+        type: string
+      state:
+        type: string
+      city:
+        type: string
+      postalCode:
+        type: string
+      address1:
+        type: string
+      address2:
+        type: string
+      latLng:
+        $ref: '#/definitions/LatLng'
+    required:
+    - country
+    - state
+    - city
+    - postalCode
+    - address1
+  Location:
+    type: object
+    properties:
+      id:
+        type: string
+      staff_id:
+        type: string
+      staff_name:
+        type: string
+      name:
+        type: string
+      nickName:
+        type: string
+      description:
+        type: string
+      hours:
+        type: string
+      services:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      address:
+        $ref: '#/definitions/Address'
+      files:
+        type: array
+        items:
+          $ref: '#/definitions/File'
+      active:
+        type: boolean
+      createdAt:
+        type: string
+      storeCode:
+        type: string
+      summary:
+        $ref: '#/definitions/TxSummary'
+    required:
+    - name
+    - nickName
+    - staff_id
+    # - phoneNumber
+    # - email
+  Statement:
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      year:
+        type: integer 
+      month:
+        type: integer
+      filePath:
+        type: string
+      status:
+        type: string
+    required:
+    - year
+    - month
+    - filePath
+    - status
+  Report:
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      year:
+        type: integer
+      month:
+        type: integer
+      filePath:
+        type: string
+      status:
+        type: string
+    required:
+    - year
+    - month
+    - filePath
+    - status
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      location_id:
+        type: string
+      location_name:
+        type: string
+      coin_id:
+        type: string
+      coin_name:
+        type: string
+      createdAt:
+        type: string
+      updatedAt:
+        type: string
+      pair:
+        type: string
+      side:
+        type: string
+      amount:
+        type: number
+      price:
+        type: number
+      volume:
+        type: integer
+      btcVolStr:
+        type: string
+      status:
+        type: string
+
+      chainTxType:
+        type: string
+      chainTxAddr:
+        type: string
+      chainTxHash:
+        type: string
+      chainTxStatus:
+        type: string
+      chainName:
+        type: string
+      payMethod:
+        type: string
+      spread:
+        type: number
+      commission:
+        type: number
+      credit:
+        type: number
+      note:
+        type: string
+      token:
+        type: string
+      isSettled:
+        type: boolean
+      authCode:
+        type: string
+      fee:
+        type: number
+      isMFA:
+        type: boolean
+      systemLedgers:
+        type: array
+        items:
+          $ref: '#/definitions/SystemLedger'
+      transaction_id:
+        type: string
+      currency:
+        type: string
+      qrcode:
+        type: string 
+    required:
+    - pair
+    - side
+    - amount
+    - price
+    - volume
+    - commission
+    - isSettled
+    - fee
+
+  TransactionStatus:
+    type: object
+    properties:
+      side:
+        type: string
+      status:
+        type: string
+    required:
+    - side
+    - status
+
+  CreateTransactionRequest:
+    type: object
+    properties:
+      pair:
+        type: string
+      side:
+        type: string
+      amount:
+        type: number
+      price:
+        type: number
+      fee:
+        type: number
+      volume:
+        type: integer
+      chainTxType:
+        type: string
+      chainTxAddr:
+        type: string
+      chainTxHash:
+        type: string
+      payMethod:
+        type: string
+      payFeeRate:
+        type: number
+      note:
+        type: string
+      customer_id:
+        type: string
+      baseInput:
+        type: string
+    required:
+    - pair
+    - side
+    - amount
+    - price
+    - volume
+  CreateUserRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      userType:
+        type: string
+      phoneNumber:
+        type: string
+      allowSetCommissionRate:
+        type: boolean
+      operatorBuyCommissionRate:
+        type: number
+      operatorSellCommissionRate:
+        type: number
+      promoterBuyCommissionRate:
+        type: number
+      promoterSellCommissionRate:
+        type: number
+      storeBuyCommissionRate:
+        type: number
+      storeSellCommissionRate:
+        type: number
+      salesBuyCommissionRate:
+        type: number
+      salesSellCommissionRate:
+        type: number
+    required:
+    - email
+    - userType
+    - phoneNumber
+    - name
+  UpdateUserRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      phoneNumber:
+        type: string
+    required:
+      - phoneNumber
+      - name
+  Coin:
+    type: object
+    properties:
+      id:
+        type: string
+      location_id:
+        type: string
+      symbol:
+        type: string
+      buySpread:
+        type: number
+      sellSpread:
+        type: number
+      systemBuySpread:
+        type: number
+      systemSellSpread:
+        type: number
+      exchangeBuySpread:
+        type: number
+      exchangeSellSpread:
+        type: number
+      txMax:
+        type: number
+      txMin:
+        type: number
+      pair:
+        type: string
+      tradeFlag:
+        type: number
+      currency:
+        type: string
+      commissionRateSetting:
+        $ref: '#/definitions/CommissionRateSetting'
+    required:
+    - symbol
+  CommissionRateSetting:
+    type: object
+    properties:
+      buy:
+        type: array
+        items:
+          $ref: '#/definitions/RateRange'
+      sell:
+        type: array
+        items:
+          $ref: '#/definitions/RateRange'
+    required:
+      - buy
+      - sell
+  RateRange:
+    type: object
+    properties:
+      max:
+        type: number
+      rate:
+        type: number
+    required:
+      - max
+      - rate
+  CoinBalance:
+    type: object
+    properties:
+      symbol:
+        type: string
+      amount:
+        type: number
+    required:
+    - symbol
+    - amount
+  Funding:
+    type: object
+    properties:
+      id:
+        type: string
+      createdAt:
+        type: string
+      account_id:
+        type: string
+      account_name:
+        type: string
+      asset:
+        type: string
+      amount:
+        type: number
+      fee:
+        type: number
+      fundingType:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      note:
+        type: string
+      transactionID:
+        type: string
+    required:
+    - asset
+    - fundingType
+    - method
+    - amount
+    - fee
+    - status
+  Code:
+    type: object
+    properties:
+      code:
+        type: string
+    required:
+    - code
+  Price:
+    type: object
+    properties:
+      originBuy:
+        type: number
+      originSell:
+        type: number
+      buy:
+        type: number
+      sell:
+        type: number
+      updatedAt:
+        type: string
+        format: date-time
+      token:
+        type: string
+      fee:
+        type: number
+      commissionRateSetting:
+        $ref: '#/definitions/CommissionRateSetting'
+    required:
+    - buy
+    - sell
+    - token
+    - updatedAt
+  BillPrice:
+    type: object
+    properties:
+      sell:
+        type: number
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+    - sell
+    - updatedAt
+  Image:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      base64:
+        type: string
+    required:
+      - title
+      - base64
+  File:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      base64:
+        type: string
+    required:
+      - title
+      - base64
+  LoginRequest:
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+  SignupRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      userType:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    required:
+    - email
+    - password
+    - phoneNumber
+  SuccessResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+    required:
+    - success
+
+  ChainTx:
+    type: object
+    properties:
+      coinName:
+        type: string
+      txHash:
+        type: string
+      confirmations:
+        type: integer
+      fee:
+        type: number
+      time:
+        type: integer
+      timereceived:
+        type: integer
+      fromAddress:
+        type: string
+      toAddress:
+        type: string
+      category:
+        type: string
+      volume:
+        type: number
+      ref:
+        type: string
+      status:
+        type: string
+      orderID:
+        type: string
+    required:
+    # - txHash
+    - coinName
+    - toAddress
+
+  ChainTxConfirmRequest:
+    type: object
+    properties:
+      txID:
+        type: string
+      fee:
+        type: number
+    required:
+    - txID
+
+  BlockchainCallbackRequest:
+    type: object
+    properties:
+      orderId:
+        type: string
+    required:
+      - orderId
+
+  PhoneNumber:
+    type: object
+    properties:
+      countryCode:
+        type: string
+      phoneNumber:
+        type: string
+      extension:
+        type: string
+    required:
+    - countryCode
+    - phoneNumber
+  ErrorResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      code_name:
+        type: string
+      message:
+        type: string
+    required:
+    - code
+    - message
+  ResetPasswordRequest:
+    type: object
+    properties:
+      password:
+        type: string
+      code:
+        type: string
+      url:
+        type: string
+    required:
+    - password
+    - code
+    - url
+  ChangePasswordRequest:
+    type: object
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+  TokenResponse:
+    type: object
+    properties:
+      token:
+        type: string
+    required:
+      - token
+
+  GeneralResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      message:
+        type: string
+      token:
+        type: string
+    required:
+      - status
+      - message
+  SysSendSMSRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+    required:
+    - id
+    - message
+  SendEmailRequest:
+    type: object
+    properties:
+      email:
+        type: string
+    required:
+    - email
+  LookupInvoiceResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        enum: &payment_status
+          - pending
+          - paid
+          - expired
+  CheckPrice:
+    type: object
+    properties:
+      coinId:
+        type: string
+      volume:
+        type: integer
+      amount:
+        type: number
+      pair:
+        type: string
+    required:
+    - coinId
+  CheckBillPrice:
+    type: object
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
+  UpdatePwdRequest:
+    type: object
+    properties:
+      password:
+        type: string
+      code:
+        type: string
+    required:
+    - password
+    - code
+  UpdateTxRequest:
+    type: object
+    properties:
+      note:
+        type: string
+      isSettled:
+        type: boolean
+  CreateAccountRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      countrySymbol:
+        type: string
+      address:
+         $ref: '#/definitions/Address'
+      currencySymbol:
+        type: string
+    required:
+    - firstName
+    - lastName
+    - address
+    - countrySymbol
+  UpdateAccountRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      email:
+        type: string
+      isMFA:
+        type: boolean
+      notifyUpperLimit:
+        type: number
+      creditLimit:
+        type: number
+    required:
+    - firstName
+    - lastName
+    - phoneNumber
+    - email
+    - isMFA
+  CreateCustomerRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      idFront:
+        type: string
+      idBack:
+        type: string
+      nationality:
+        type: string
+      idType:
+        type: string
+      idNumber:
+        type: string
+    required:
+      - firstName
+      - lastName
+      - phoneNumber
+      - email
+      - idFront
+      - idBack
+      - nationality
+      - idType
+      - idNumber
+  UpdateCustomerRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      email:
+        type: string
+    required:
+      - firstName
+      - lastName
+  CreateStoreOwnerRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+    required:
+    - firstName
+    - lastName
+    - email
+    - phone
+  UpdateStoreOwnerRequest:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+    required:
+    - firstName
+    - lastName
+    - email
+    - phone
+  SendCoinRequest:
+    type: object
+    properties:
+      mfaCode:
+        type: string
+    required:
+    - mfaCode
+
+  #Admin objects
+  Operator:
+    type: object
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+      - name
+      - email
+
+  Unspent:
+    type: object
+    properties:
+      id:
+        type: string
+      txid:
+        type: string
+      address:
+        type: string
+      amount:
+        type: number
+      confirmations:
+        type: integer
+      spendable:
+        type: boolean
+    required:
+      - amount
+  Exchange:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      BTC:
+        type: number
+      USDT:
+        type: number
+    required:
+      - BTC
+      - USDT
+  FileInfo:
+    type: object
+    properties:
+      fileName:
+        type: string
+      filePath:
+        type: string
+      fileUrl:
+        type: string
+      fileType:
+        type: string
+      fileSize:
+        type: string
+      fileExt:
+        type: string
+  UpdateStatementRequest:
+    type: object
+    properties:
+      status:
+        type: string
+    required:
+    - status
+  UpdateReportRequest:
+    type: object
+    properties:
+      status:
+        type: string
+    required:
+    - status
+  SplitUnspentRequest:
+    type: object
+    properties:
+      amount:
+        type: number
+      numOfAddr:
+        type: integer
+      confTarget:
+        type: integer
+    required:
+    - amount
+    - numOfAddr
+    - confTarget
+  TxSummary:
+    type: object
+    properties:
+      id:
+        type: string
+      totalAmt:
+        type: number
+      totalComm:
+        type: number
+      count:
+        type: integer
+      currency:
+        type: string
+  Response: # Used for twillo
+    type: object
+    properties:
+      message:
+        type: string
+  LeolistRequest:
+    type: object
+    properties:
+      url:
+        type: string
+      city:
+        type: string
+      ethnicity:
+        type: string
+      region:
+        type: string
+      country:
+        type: string
+      phone:
+        type: string
+      content:
+        type: string
+    required:
+    - url
+    - city
+  SettleTransactionsRequest:
+    type: object
+    properties:
+      isSettle:
+        type: boolean
+      ids:
+        type: array
+        items:
+          type: string
+    required:
+    - isSettle
+    - ids
+  CreateStatementRequest:
+    type: object
+    properties:
+      account_id:
+        type: string
+      year:
+        type: integer
+      month:
+        type: integer
+    required:
+    - account_id
+    - year
+    - month
+  CreateReportRequest:
+    type: object
+    properties:
+      account_id:
+        type: string
+      year:
+        type: integer
+      month:
+        type: integer
+    required:
+    - account_id
+    - year
+    - month
+  CreateFundingRequest:
+    type: object
+    properties:
+      account_id:
+        type: string
+      asset:
+        type: string
+      amount:
+        type: number
+      fundingType:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      note:
+        type: string
+      fee:
+        type: number
+    required:
+    - account_id
+    - asset
+    - fundingType
+    - method
+    - amount
+    - status
+    - fee
+  CreateOperatorRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+    required:
+    - name
+    - email
+  UpdateFundingRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      fundingType:
+        type: string
+      amount:
+        type: number
+      fee:
+        type: number
+      status:
+        type: string
+      method:
+        type: string
+      note:
+        type: string
+    required:
+    - id
+    - account_id
+    - method
+    - amount
+    - status
+    - fee
+  UpdateOperatorRequest:
+    type: object
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - email
+    - name
+    - phone
+  NotifyLeolistRequest:
+    type: object
+    properties:
+      ethnicity:
+        type: string
+      region:
+        type: string
+      status:
+        type: string
+      offset:
+        type: integer
+      limit:
+        type: integer
+    required:
+    - ethnicity
+    - region
+  NotifyDianRequest:
+    type: object
+    properties:
+      ethnicity:
+        type: string
+      region:
+        type: string
+      status:
+        type: string
+      offset:
+        type: integer
+      limit:
+        type: integer
+      message:
+        type: string
+    required:
+    - ethnicity
+    - region
+    - message
+  SystemLedger:
+    type: object
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      amount:
+        type: number
+      currency:
+        type: string
+      source:
+        type: string
+  SystemCoin:
+    type: object
+    properties:
+      id:
+        type: string
+      symbol:
+        type: string
+      chainSymbol:
+        type: string
+      blockChain:
+        type: string
+      type:
+        type: string
+      onSale:
+        type: boolean
+      balance:
+        type: number
+  SystemCurrency:
+    type: object
+    properties:
+      id:
+        type: string
+      symbol:
+        type: string
+  AccountBalance:
+    type: object
+    properties:
+      id:
+        type: string
+      accountId:
+        type: string
+      accountName:
+        type: string
+      currency:
+        type: string
+      creditLimit:
+        type: number
+      balance:
+        type: number
+    required:
+    - currency
+    - creditLimit
+    - balance
+  GetAccountBalanceRequest:
+    type: object
+    properties:
+      accountId:
+        type: string
+  CreateAccountBalanceRequest:
+    type: object
+    properties:
+      accountId:
+        type: string
+      currency:
+        type: string
+      creditLimit:
+        type: number
+    required:
+    - currency
+  UpdateAccountBalanceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      creditLimit:
+        type: number
+    required:
+    - id
+    - creditLimit
+  AccountCurrency:
+    type: object
+    properties:
+      id:
+        type: string
+      accountId:
+        type: string
+      currency:
+        type: string
+      kycLimit:
+        type: number
+      commissionRateSetting:
+        $ref: '#/definitions/CommissionRateSetting'
+      fixedCommissionRateSetting:
+        $ref: '#/definitions/CommissionRateSetting'
+  PaymentMethod:
+    type: object
+    properties:
+      id:
+        type: string
+      code:
+        type: string
+      label:
+        type: string
+      icon:
+        type: string
+      status:
+        type: boolean
+    required:
+    - code
+    - label
+    - icon
+    - status
+  CreatePaymentMethodRequest:
+    type: object
+    properties:
+      code:
+        type: string
+      label:
+        type: string
+      icon:
+        type: string
+      status:
+        type: boolean
+    required:
+    - code
+    - label
+    - icon
+    - status
+  UpdatePaymentMethodRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      label:
+        type: string
+      icon:
+        type: string
+      status:
+        type: boolean
+    required:
+    - id
+    - label
+    - icon
+    - status
+  AccountPaymentFee:
+    type: object
+    properties:
+      id:
+        type: string
+      payment_method_id:
+        type: string
+      fee_rate:
+        type: number
+      sort:
+        type: integer
+      code:
+        type: string
+      label:
+        type: string
+      icon:
+        type: string
+      status:
+        type: boolean
+    required:
+    - id
+    - payment_method_id
+    - fee_rate
+    - sort
+    - status
+  CreateAccountPaymentFeeRequest:
+    type: object
+    properties:
+      payment_method_id:
+        type: string
+      fee_rate:
+        type: number
+      sort:
+        type: integer
+      status:
+        type: boolean
+    required:
+    - payment_method_id
+    - fee_rate
+    - sort
+    - status
+  UpdateAccountPaymentFeeRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      payment_method_id:
+        type: string
+      fee_rate:
+        type: number
+      sort:
+        type: integer
+      status:
+        type: boolean
+    required:
+    - id
+    - payment_method_id
+    - fee_rate
+    - sort
+    - status
+
+  SmartCardCoin:
+    type: object
+    properties:
+      id:
+        type: string
+      index:
+        type: integer
+      name:
+        type: string
+      symbol:
+        type: string
+      parentIndex:
+        type: integer
+      contractAddress:
+        type: string
+      command:
+        type: string
+  GetUnsignedDataRequest:
+    type: object
+    properties:
+      coinId:
+        type: string
+      toAddress:
+        type: string
+      volume:
+        type: number
+      from:
+        type: string
+    required:
+      - coinId
+      - toAddress
+      - volume
+      - from
+  GetUnsignedDataResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      command:
+        type: string
+
+  PushTransactionRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      signedData:
+        type: string
+    required:
+      - id
+      - signedData
+  PushTransactionResponse:
+    type: object
+    properties:
+      tx_id:
+        type: string
+      command:
+        type: string
+
+  GetBalanceRequest:
+    type: object
+    properties:
+      from:
+        type: string
+    required:
+      - from
+  GetBalanceResponse:
+    type: object
+    properties:
+      command:
+        type: string
+  AppVersion:
+    type: object
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+      path:
+        type: string
+      description:
+        type: string
+      status:
+        type: boolean
+    required:
+    - version
+    - path
+    - description
+    - status
+  CreateAppVersionRequest:
+    type: object
+    properties:
+      version:
+        type: string
+      path:
+        type: string
+      description:
+        type: string
+      status:
+        type: boolean
+    required:
+    - version
+    - path
+    - description
+    - status
+  UpdateAppVersionRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+      path:
+        type: string
+      description:
+        type: string
+      status:
+        type: boolean
+    required:
+    - id
+    - version
+    - path
+    - description
+    - status
+
+  AccountKycLimit:
+    type: object
+    properties:
+      symbol:
+        type: string
+      kycLimit:
+        type: number
+
+  OrderItem:
+    type: object
+    properties:
+      name:
+        type: string
+      price:
+        type: integer
+      currency:
+        type: string
+      quantity:
+        type: integer
+      metadata:
+        type: string
+
+  Order:
+    type: object
+    properties:
+      order_id:
+        type: string
+      name:
+        type: string
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/OrderItem'
+      subtotal:
+        type: integer
+      sales_tax:
+        type: integer
+      discount:
+        type: integer
+      shipping:
+        type: integer
+      total:
+        type: integer
+      currency:
+        type: string
+
+  CryptoCurrency:
+    type: object
+    properties:
+      id:
+        type: string
+      network:
+        type: string
+      price:
+        type: number
+      price_pair:
+        type: string
+      amount:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+
+  BlockchainTransactionDetail:
+    type: object
+    properties:
+      id:
+        type: string
+      amount:
+        type: string
+      currency:
+        type: string
+      network:
+        type: string
+      address:
+        type: string
+      tx_hash:
+        type: string
+      confirmations:
+        type: integer
+      block_time:
+        type: integer
+      block_height:
+        type: integer
+
+  PaymentCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+      ip_address:
+        type: string
+      destination_address:
+        type: string
+      destination_network:
+        type: string
+      destination_currency:
+        type: string
+
+  Payment:
+    type: object
+    properties:
+      id:
+        type: string
+      object:
+        type: string
+      amount:
+        type: string
+      currency:
+        type: string
+      amount_paid:
+        type: string
+      currency_paid:
+        type: string
+      amount_due:
+        type: string
+      currency_due:
+        type: string
+      currency_due_network:
+        type: string
+      currency_due_address:
+        type: string
+      description:
+        type: string
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+      supported_cryptocurrencies:
+        type: array
+        items:
+          $ref: '#/definitions/CryptoCurrency'
+      blockchain_transaction_details:
+        type: array
+        items:
+          $ref: '#/definitions/BlockchainTransactionDetail'
+      price_expires_at:
+        type: integer
+      expires_at:
+        type: integer
+      canceled_at:
+        type: integer
+      status:
+        type: string
+      created_at:
+        type: integer
+      obj_secret:
+        type: string
+      failed_reason:
+        type: string
+
+  CreatePaymentRequest:
+    type: object
+    properties:
+      amount:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+      order:
+        $ref: '#/definitions/Order'
+
+  ConfirmPaymentRequest:
+    type: object
+    properties:
+      cryptocurrency:
+        type: object
+        $ref: '#/definitions/CryptoCurrency'
+
+
+  DestinationNetworkDetail:
+    type: object
+    properties:
+      id:
+        type: string
+      destination_amount:
+        type: string
+      destination_currency:
+        type: string
+      destination_network:
+        type: string
+      destination_network_description:
+        type: string
+      destination_transaction_fee_fixed: # 100 (1U)
+        type: string 
+      destination_transaction_fee_percentage: # 0.005 
+        type: string
+      destination_transaction_fee_type: # percentage | fixed
+        type: string 
+      destination_transaction_fee_currency: # USDC
+        type: string
+      destination_network_fee: # gas fee
+        type: string
+      destination_network_fee_currency: 
+        type: string
+      destination_network_fee_monetary:
+        type: string
+      transfer_with_native_token:
+        $ref: '#/definitions/TransferWithNativeToken'
+
+  Payout:
+    type: object
+    properties:
+      id:
+        type: string
+      object:
+        type: string
+      amount:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+      destination_network_details:
+        type: array
+        items:
+          $ref: '#/definitions/DestinationNetworkDetail'
+      blockchain_transaction_details:
+        type: array
+        items:
+          $ref: '#/definitions/BlockchainTransactionDetail'
+      canceled_at:
+        type: integer
+      status:
+        type: string
+      created_at:
+        type: integer
+      obj_secret:
+        type: string
+      failed_reason:
+        type: string
+      transfer_with_native_token:
+        $ref: '#/definitions/TransferWithNativeToken'
+
+  TransferWithNativeToken:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      amount:
+        type: string
+      network:
+        type: string
+      currency:
+        type: string
+
+  CreatePayoutRequest:
+    type: object
+    properties:
+      amount:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+      transfer_with_native_token:
+        $ref: '#/definitions/TransferWithNativeToken'
+
+  ConfirmPayoutRequest:
+    type: object
+    properties:
+      destination_network_details:
+        type: array
+        items:
+          $ref: '#/definitions/DestinationNetworkDetail'
+
+  GetPaymentsResponse:
+    type: object
+    properties:
+      limit:
+        type: integer
+      starting_after:
+        type: string
+      ending_before:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Payment'
+  GetPayoutsResponse:
+    type: object
+    properties:
+      limit:
+        type: integer
+      starting_after:
+        type: string
+      ending_before:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Payout'
+
+  CreateCustomerWalletRequest:
+    type: object
+    properties:
+      currency:
+        type: string
+        description: Three-letter [ISO currency
+            code](https://www.iso.org/iso-4217-currency-codes.html) for FIAT, three or four letter code for cryptocurrencies. Cryptocurrency code list
+        example: 'BTC'
+      network:
+        type: string
+        description: The cryptocurrency network
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+
+  WalletAddress:
+    type: object
+    properties:
+      id:
+        type: string
+      address:
+        type: string
+      address_currency:
+        type: string
+      address_network:
+        type: string
+      description:
+        type: string
+
+  CustomerWallet:
+    type: object
+    properties:
+      id:
+        type: string
+      object:
+        type: string
+      object_secret:
+        type: string
+      supported_cryptocurrencies:
+        type: array
+        items:
+          $ref: '#/definitions/CryptoCurrency'
+      customer:
+        $ref: '#/definitions/PaymentCustomer'
+      wallet_addresses:
+        type: array
+        items:
+          $ref: '#/definitions/WalletAddress'
+
